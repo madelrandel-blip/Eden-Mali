@@ -95,11 +95,11 @@ jobs:
 
       - name: Show binary info
         run: |
-          ./build/bin/eden --version || true
           ldd ./build/bin/eden | grep -E "Qt6|not found" || true
+          strings ./build/bin/eden | grep -m1 "Eden Mali" && echo "branding OK"
 
       - name: Package
-        run: ./packaging/linux/package.sh
+        run: bash packaging/linux/package.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
