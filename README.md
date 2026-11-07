@@ -13,7 +13,8 @@
 > [madelrandel-blip/Eden-Mali](https://github.com/madelrandel-blip/Eden-Mali).
 >
 > - Upstream (original project, issues and PRs): <https://git.eden-emu.dev/eden-emu/eden>
-> - Fork branch: `mali` (branding + GitHub CI). `master` is kept identical to upstream.
+> - Fork layout: `master` is upstream `master` plus the Eden Mali branding and CI. Update it by
+>   merging `upstream/master` and resolving conflicts on the fork's own changes.
 > - All credit for the emulator goes to the Eden and yuzu developers. Licensed under GPL-3.0-or-later.
 >
 > **Eden Mali** es un fork personal de Eden. El proyecto original y su soporte están en

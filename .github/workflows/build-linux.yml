@@ -10,7 +10,7 @@ name: Build Linux
 on:
   workflow_dispatch:
   push:
-    branches: [mali]
+    branches: [master]
     tags: ['v*']
 
 permissions:
