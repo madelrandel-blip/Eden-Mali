@@ -20,10 +20,11 @@
 Unicode true
 ManifestDPIAware true
 
-!define PRODUCT_NAME "Eden"
-!define PRODUCT_PUBLISHER "Utopia LLC"
-!define PRODUCT_WEB_SITE "https://git.eden-emu.dev"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}.exe"
+!define PRODUCT_NAME "Eden Mali"
+!define PRODUCT_PUBLISHER "Eden Mali Project"
+!define PRODUCT_WEB_SITE "https://github.com/madelrandel-blip/Eden-Mali"
+!define PRODUCT_EXE_NAME "eden"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_EXE_NAME}.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
 !define BINARY_SOURCE_DIR "..\bin"

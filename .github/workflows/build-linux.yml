@@ -1,0 +1,116 @@
+# SPDX-FileCopyrightText: Copyright 2026 Eden Mali Project
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Builds Eden Mali for Linux x86_64 on GitHub-hosted runners.
+# The build runs inside an Ubuntu 26.04 container because Eden requires
+# Qt >= 6.5 and SDL3, which are only available in recent Ubuntu releases.
+
+name: Build Linux
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [mali]
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux x86_64
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:26.04
+    env:
+      CCACHE_DIR: /root/.cache/ccache
+      CCACHE_COMPILERCHECK: content
+      CCACHE_SLOPPINESS: time_macros
+      CCACHE_MAXSIZE: 2G
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Prepare container
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git ca-certificates
+          git config --global --add safe.directory "*"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install build dependencies
+        run: |
+          apt-get install -y --no-install-recommends \
+            autoconf ccache cmake g++ gcc glslang-tools libglu1-mesa-dev \
+            libhidapi-dev libpulse-dev libtool libudev-dev libxcb-icccm4 \
+            libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 \
+            libxcb-xkb1 libxext-dev libxkbcommon-x11-0 mesa-common-dev nasm \
+            ninja-build patch patchelf pkg-config zlib1g-dev \
+            libboost-dev libboost-context-dev libboost-fiber-dev \
+            libavcodec-dev libavfilter-dev libavutil-dev libswscale-dev \
+            libfmt-dev liblz4-dev libzstd-dev libssl-dev nlohmann-json3-dev \
+            libopus-dev libsdl3-dev libusb-1.0-0-dev libxbyak-dev libasound2t64 \
+            libva-dev libvdpau-dev libvulkan-dev spirv-tools spirv-headers \
+            vulkan-utility-libraries-dev \
+            qt6-base-dev qt6-base-private-dev qt6-charts-dev qt6-qpa-plugins
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: /root/.cache/ccache
+          key: ccache-linux-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-linux-${{ github.ref_name }}-
+            ccache-linux-
+
+      - name: Restore CPM cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/cpm
+          key: cpm-${{ hashFiles('cpmfile.json') }}
+          restore-keys: |
+            cpm-
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DENABLE_WERROR=OFF \
+            -DENABLE_QT_TRANSLATION=OFF \
+            -DENABLE_UPDATE_CHECKER=OFF \
+            -DYUZU_TESTS=OFF \
+            -DYUZU_ROOM_STANDALONE=OFF
+
+      - name: Build
+        run: cmake --build build --parallel "$(nproc)"
+
+      - name: Show binary info
+        run: |
+          ./build/bin/eden --version || true
+          ldd ./build/bin/eden | grep -E "Qt6|not found" || true
+
+      - name: Package
+        run: ./packaging/linux/package.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EdenMali-linux-x86_64
+          path: |
+            artifacts/*.tar.xz
+            artifacts/*.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: ccache stats
+        if: always()
+        run: ccache --show-stats || true
