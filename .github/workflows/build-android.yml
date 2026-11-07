@@ -1,0 +1,152 @@
+# SPDX-FileCopyrightText: Copyright 2026 Eden Mali Project
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Builds Eden Mali for Android (arm64-v8a), aimed at ARM Mali GPU devices.
+#
+#  * mainline  -> "Eden Mali"          (minSdk 33, regular Vulkan path)
+#  * legacy    -> "Eden Mali Legacy"   (minSdk 29, YUZU_LEGACY compatibility
+#                                       patches for older/weaker GPUs)
+#
+# Both are built as Release APK + AAB, signed with the bundled debug keystore
+# so they can be sideloaded without extra secrets.
+
+name: Build Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android ${{ matrix.flavor }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: standard
+            flavor: mainline
+          - target: legacy
+            flavor: legacy
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_COMPILERCHECK: content
+      CCACHE_SLOPPINESS: time_macros
+      CCACHE_MAXSIZE: 2G
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/share/boost /opt/ghc \
+            /usr/local/lib/android/sdk/emulator /usr/local/lib/android/sdk/system-images || true
+          df -h /
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platform-tools
+            platforms;android-36
+            build-tools;36.0.0
+            ndk;28.2.13676358
+            cmake;3.31.5
+
+      - name: Accept SDK licenses
+        run: yes | sdkmanager --licenses > /dev/null 2>&1 || true
+
+      - name: Install ccache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ccache
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ccache-android-${{ matrix.flavor }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-android-${{ matrix.flavor }}-
+            ccache-android-
+
+      - name: Restore Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('src/android/**/*.gradle*', 'src/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-
+
+      - name: Restore CPM cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/cpm
+          key: cpm-android-${{ hashFiles('cpmfile.json') }}
+          restore-keys: |
+            cpm-android-
+
+      - name: Set version name
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            echo "GIT_TAG_NAME=$GITHUB_REF_NAME" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build
+        run: |
+          chmod +x .ci/android/build.sh
+          CCACHE=true .ci/android/build.sh -t ${{ matrix.target }} -b Release
+
+      - name: Upload APK and AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: EdenMali-android-${{ matrix.flavor }}
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: ccache stats
+        if: always()
+        run: ccache --show-stats || true
+
+  release:
+    name: Publish release
+    needs: android
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Eden Mali ${{ github.ref_name }}
+          files: |
+            artifacts/*.apk
+            artifacts/*.aab
+          generate_release_notes: true
+          fail_on_unmatched_files: true

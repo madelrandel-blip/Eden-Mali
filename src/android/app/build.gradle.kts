@@ -190,8 +190,8 @@ android {
             isDefault = true
             minSdk = 33
 
-            manifestPlaceholders += mapOf("appNameBase" to "Eden")
-            resValue("string", "app_name_suffixed", "Eden")
+            manifestPlaceholders += mapOf("appNameBase" to "Eden Mali")
+            resValue("string", "app_name_suffixed", "Eden Mali")
 
             ndk {
                 abiFilters += listOf("arm64-v8a")
@@ -201,8 +201,8 @@ android {
         create("genshinSpoof") {
             dimension = "version"
             minSdk = 35
-            manifestPlaceholders += mapOf("appNameBase" to "Eden Optimized")
-            resValue("string", "app_name_suffixed", "Eden Optimized")
+            manifestPlaceholders += mapOf("appNameBase" to "Eden Mali Optimized")
+            resValue("string", "app_name_suffixed", "Eden Mali Optimized")
             applicationId = "com.miHoYo.Yuanshen"
 
             externalNativeBuild {
@@ -219,8 +219,8 @@ android {
         create("legacy") {
             dimension = "version"
             minSdk = 29
-            manifestPlaceholders += mapOf("appNameBase" to "Eden Legacy")
-            resValue("string", "app_name_suffixed", "Eden Legacy")
+            manifestPlaceholders += mapOf("appNameBase" to "Eden Mali Legacy")
+            resValue("string", "app_name_suffixed", "Eden Mali Legacy")
             applicationId = "dev.legacy.eden_emulator"
 
             externalNativeBuild {
@@ -242,8 +242,8 @@ android {
 
         create("chromeOS") {
             dimension = "version"
-            manifestPlaceholders += mapOf("appNameBase" to "Eden ChromeOS")
-            resValue("string", "app_name_suffixed", "Eden ChromeOS")
+            manifestPlaceholders += mapOf("appNameBase" to "Eden Mali ChromeOS")
+            resValue("string", "app_name_suffixed", "Eden Mali ChromeOS")
 
             ndk {
                 abiFilters += listOf("x86_64")
@@ -270,7 +270,7 @@ android {
 
         // apply nightly suffix I/A
         resValue("string", "app_name_suffixed", "$currentName$suffix")
-        resValue("string", "app_name", "Eden$suffix")
+        resValue("string", "app_name", "Eden Mali$suffix")
     }
 
     sourceSets {
