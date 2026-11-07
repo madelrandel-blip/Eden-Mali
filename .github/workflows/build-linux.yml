@@ -31,6 +31,7 @@ jobs:
       CCACHE_COMPILERCHECK: content
       CCACHE_SLOPPINESS: time_macros
       CCACHE_MAXSIZE: 2G
+      LANG: C.UTF-8
       DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Prepare container
@@ -59,7 +60,8 @@ jobs:
             libopus-dev libsdl3-dev libusb-1.0-0-dev libxbyak-dev libasound2t64 \
             libva-dev libvdpau-dev libvulkan-dev spirv-tools spirv-headers \
             vulkan-utility-libraries-dev \
-            qt6-base-dev qt6-base-private-dev qt6-charts-dev qt6-qpa-plugins
+            qt6-base-dev qt6-base-private-dev qt6-charts-dev qt6-qpa-plugins \
+            xz-utils
 
       - name: Restore ccache
         uses: actions/cache@v4
