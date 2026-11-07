@@ -7,9 +7,9 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Eden
+Name=Eden Mali
 GenericName=Switch Emulator
-Comment=Multiplatform FOSS Switch 1 emulator written in C++, derived from Yuzu and Sudachi
+Comment=Multiplatform FOSS Switch 1 emulator written in C++, derived from Yuzu and Sudachi (Eden Mali fork)
 Icon=dev.eden_emu.eden
 TryExec=eden
 Exec=eden %f

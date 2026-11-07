@@ -7,6 +7,18 @@
 -->
 <!-- lang: en-GB -->
 
+> [!IMPORTANT]
+> **Eden Mali** is a personal fork of [Eden](https://git.eden-emu.dev/eden-emu/eden), the Nintendo Switch emulator.
+> It tracks upstream `master` and is maintained at
+> [madelrandel-blip/Eden-Mali](https://github.com/madelrandel-blip/Eden-Mali).
+>
+> - Upstream (original project, issues and PRs): <https://git.eden-emu.dev/eden-emu/eden>
+> - Fork branch: `mali` (branding + GitHub CI). `master` is kept identical to upstream.
+> - All credit for the emulator goes to the Eden and yuzu developers. Licensed under GPL-3.0-or-later.
+>
+> **Eden Mali** es un fork personal de Eden. El proyecto original y su soporte están en
+> <https://git.eden-emu.dev/eden-emu/eden>.
+
 <h1 align="center">
   <br>
   <a href="https://git.eden-emu.dev/eden-emu/eden"><img src="./dist/qt_themes/default/icons/256x256/eden.png" alt="Eden" width="200"></a>
