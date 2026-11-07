@@ -97,6 +97,9 @@ chmod 0755 "$OUT/bin/eden-mali"
 for bin in "$OUT"/bin/eden "$OUT"/bin/eden-cli; do
     [ -f "$bin" ] || continue
     patchelf --set-rpath '$ORIGIN/../lib' "$bin"
+    if command -v strip >/dev/null 2>&1; then
+        strip --strip-unneeded "$bin" || true
+    fi
 done
 
 # --- docs ----------------------------------------------------------------
@@ -107,7 +110,7 @@ done
 # --- archive -------------------------------------------------------------
 mkdir -p "$DIST"
 tar -C "$DIST" -cJf "$DIST/$PKG.tar.xz" "$PKG"
-sha256sum "$DIST/$PKG.tar.xz" > "$DIST/$PKG.tar.xz.sha256"
+( cd "$DIST" && sha256sum "$PKG.tar.xz" > "$PKG.tar.xz.sha256" )
 
 echo ">> Created $DIST/$PKG.tar.xz"
 du -h "$DIST/$PKG.tar.xz"
