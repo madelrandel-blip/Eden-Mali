@@ -28,6 +28,8 @@ concurrency:
 jobs:
   android:
     name: Android ${{ matrix.flavor }}
+    # Doc-only commits tagged [skip ci] don't rebuild; tag pushes always build.
+    if: github.ref_type == 'tag' || !contains(github.event.head_commit.message, '[skip ci]')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

@@ -19,6 +19,14 @@
 >
 > **Eden Mali** es un fork personal de Eden. El proyecto original y su soporte están en
 > <https://git.eden-emu.dev/eden-emu/eden>.
+>
+> **Descargas Android (GPU Mali)** — cada push a `master` y cada tag `v*` genera APK/AAB en
+> [Actions](https://github.com/madelrandel-blip/Eden-Mali/actions/workflows/build-android.yml):
+> `Eden Mali` (mainline, Android 13+) y `Eden Mali Legacy` (Android 10+, parches de compatibilidad
+> para GPUs antiguas). Firmados con la keystore de depuración incluida en el repositorio.
+> Ajustes recomendados en Mali: `Extras/Extended Dynamic State` en `0` o `1`,
+> `Extras/Vertex Input Dynamic State` desactivado, `Advanced/Use persistent cache` y
+> `Advanced/Use Vulkan pipeline cache` activados.
 
 <h1 align="center">
   <br>
